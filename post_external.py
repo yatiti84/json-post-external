@@ -2,7 +2,7 @@ import requests
 import json
 import math
 from google.cloud import storage
-from config import column_names, api_endpoints_url_dict, api_base_url, max_results
+from configs import column_names, api_endpoints_url_dict, api_base_url, max_results
 def get_results(url, api_endpoint):
     results = []
     file = requests.get(url)
