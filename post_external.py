@@ -2,9 +2,7 @@ import requests
 import json
 import math
 from google.cloud import storage
-
-column_names = ["slug", "title", "style", "sections",
-                "categories", "heroImage", "brief", "publishedDate","partner"]
+from config import column_names, api_endpoints_url_dict, api_base_url, max_results
 def get_results(url, api_endpoint):
     results = []
     file = requests.get(url)
@@ -23,14 +21,10 @@ def get_results(url, api_endpoint):
         results.append(result)
     return results
 def homepage_json():
-    api_endpoints_url_dict = {"posts": "?sort=-updateAt&where=%7B%22isAdvertised%22:false,%22state%22:%7B%22$ne%22:%22invisible%22%7D,%22categories%22:%7B%22$nin%22:%5B%22581c3a7792c2930d009de311%22,%225ea94861a66f9e0f00a0503f%22%5D%7D%7D&max_results=100&page=",
-                                  "externals": "?max_results=100&sort=-publishedDate&page="}
-    api_base_url = "https://api.mirrormedia.mg/"
     post_external = []
-    max_results = 200
-    max_results = math.ceil(max_results/100)
+    page = math.ceil(max_results/100)
     for api_endpoint in api_endpoints_url_dict.keys():
-        for i in range(1, max_results):
+        for i in range(1, page):
             url = api_base_url + api_endpoint + \
                 api_endpoints_url_dict[api_endpoint] + str(i)
             post_external += get_results(url, api_endpoint)
