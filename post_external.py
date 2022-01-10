@@ -1,5 +1,6 @@
 import requests
 import json
+import math
 from google.cloud import storage
 
 column_names = ["slug", "title", "style", "sections",
@@ -22,14 +23,16 @@ def get_results(url, api_endpoint):
         results.append(result)
     return results
 def homepage_json():
-    url_dict = {"api_endpoints": {"posts": "?sort=-updateAt&where=%7B%22isAdvertised%22:false,%22state%22:%7B%22$ne%22:%22invisible%22%7D,%22categories%22:%7B%22$nin%22:%5B%22581c3a7792c2930d009de311%22,%225ea94861a66f9e0f00a0503f%22%5D%7D%7D&max_results=100&page=",
-                                  "externals": "?max_results=100&sort=-publishedDate&page="},
-                "mm_url": "https://api.mirrormedia.mg/"}
+    api_endpoints_url_dict = {"posts": "?sort=-updateAt&where=%7B%22isAdvertised%22:false,%22state%22:%7B%22$ne%22:%22invisible%22%7D,%22categories%22:%7B%22$nin%22:%5B%22581c3a7792c2930d009de311%22,%225ea94861a66f9e0f00a0503f%22%5D%7D%7D&max_results=100&page=",
+                                  "externals": "?max_results=100&sort=-publishedDate&page="}
+    api_base_url = "https://api.mirrormedia.mg/"
     post_external = []
-    for api_endpoint in url_dict["api_endpoints"].keys():
-        for i in range(1, 3):
-            url = url_dict["mm_url"] + api_endpoint + \
-                url_dict["api_endpoints"][api_endpoint] + str(i)
+    max_results = 200
+    max_results = math.ceil(max_results/100)
+    for api_endpoint in api_endpoints_url_dict.keys():
+        for i in range(1, max_results):
+            url = api_base_url + api_endpoint + \
+                api_endpoints_url_dict[api_endpoint] + str(i)
             post_external += get_results(url, api_endpoint)
     post_external = sorted(post_external, key=lambda k: k['publishedDate'])
     post_external = {'_items': post_external}
@@ -51,7 +54,5 @@ if __name__ == "__main__":
     homepage_json()
     upload_blob('statics.mirrormedia.mg', 'post_external.json',
                 'statics.mirrormedia.mg/json/json/post_external.json')
-
-
 
 
